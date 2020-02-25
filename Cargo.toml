@@ -1,0 +1,17 @@
+[package]
+name = "svinst"
+version = "0.0.1"
+authors = ["sherbst@stanford.edu"]
+repository = "https://github.com/sgherbst/svinst"
+keywords = ["parser", "verilog", "systemverilog"]
+categories = ["parsing"]
+license = "MIT"
+readme = "README.md"
+description = "Determines the modules declared and instantiated in a SystemVerilog file."
+edition = "2018"
+
+[dependencies]
+sv-parser = "0.6.3"
+sv-parser-error = "0.6.3"
+sv-parser-pp = "0.6.3"
+structopt = "0.3.2"
