@@ -1,13 +1,13 @@
 [package]
 name = "svinst"
 version = "0.0.1"
-authors = ["sherbst@stanford.edu"]
+authors = ["sgherbst@gmail.com"]
 repository = "https://github.com/sgherbst/svinst"
-keywords = ["parser", "verilog", "systemverilog"]
+keywords = ["parser", "verilog", "systemverilog", "module", "modules", "instance", "instances"]
 categories = ["parsing"]
 license = "MIT"
 readme = "README.md"
-description = "Determines the modules declared and instantiated in a SystemVerilog file."
+description = "Determines the modules declared and instantiated in SystemVerilog files, producing a YAML file as output."
 edition = "2018"
 
 [dependencies]

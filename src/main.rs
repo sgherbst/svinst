@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::error::Error as StdError;
 use std::fs::File;
-use std::io::{Read, BufWriter, Write};
+use std::io::Read;
 use std::path::PathBuf;
 use std::{cmp, process};
 use structopt::StructOpt;
@@ -15,10 +15,6 @@ struct Opt {
     /// Include path
     #[structopt(short = "i", long = "include", multiple = true, number_of_values = 1)]
     pub includes: Vec<PathBuf>,
-
-    /// Output file
-    #[structopt(short = "o", long = "output", default_value = "out.yaml")]
-    pub out_file: String
 }
 
 fn main() {
@@ -26,31 +22,27 @@ fn main() {
     
     let mut defines = HashMap::new();
     let mut exit_code = 0;
-    
-    let write_file = File::create(opt.out_file).unwrap();
-    let mut writer = BufWriter::new(&write_file);
-    
-    write!(&mut writer, "files:\n").unwrap();
+        
+    println!("files:");
     for path in &opt.files {
         match parse_sv(&path, &defines, &opt.includes, false) {
             Ok((syntax_tree, new_defines)) => {
-				write!(&mut writer, "  - file_name: \"{}\"\n", path.to_str().unwrap()).unwrap();
-				write!(&mut writer, "    mod_defs:\n").unwrap();
-				analyze_mod_defs(&mut writer, &syntax_tree);
+				println!("  - file_name: \"{}\"", path.to_str().unwrap());
+				println!("    mod_defs:");
+				analyze_mod_defs(&syntax_tree);
                 defines = new_defines;
-                println!("parse succeeded: {:?}", path);
             }
             Err(x) => {
                 match x {
                     Error::Parse(Some((origin_path, origin_pos))) => {
-                        println!("parse failed: {:?}", path);
+                        eprintln!("parse failed: {:?}", path);
                         print_parse_error(&origin_path, &origin_pos);
                     }
                     x => {
-                        println!("parse failed: {:?} ({})", path, x);
+                        eprintln!("parse failed: {:?} ({})", path, x);
                         let mut err = x.source();
                         while let Some(x) = err {
-                            println!("  Caused by {}", x);
+                            eprintln!("  Caused by {}", x);
                             err = x.source();
                         }
                     }
@@ -59,7 +51,6 @@ fn main() {
             }
         }
     }
-    writer.flush().unwrap();
 
     // exit when done
     process::exit(exit_code);
@@ -99,25 +90,25 @@ fn print_parse_error(origin_path: &PathBuf, origin_pos: &usize) {
 
             let column_len = format!("{}", column).len();
 
-            print!(" {}:{}:{}\n", origin_path.to_string_lossy(), column, row);
+            eprint!(" {}:{}:{}\n", origin_path.to_string_lossy(), column, row);
 
-            print!("{}|\n", " ".repeat(column_len + 1));
+            eprint!("{}|\n", " ".repeat(column_len + 1));
 
-            print!("{} |", column);
+            eprint!("{} |", column);
 
             let beg = if let Some(last_lf) = last_lf {
                 last_lf + 1
             } else {
                 0
             };
-            print!(
+            eprint!(
                 " {}\n",
                 String::from_utf8_lossy(&s.as_bytes()[beg..next_crlf])
             );
 
-            print!("{}|", " ".repeat(column_len + 1));
+            eprint!("{}|", " ".repeat(column_len + 1));
 
-            print!(
+            eprint!(
                 " {}{}\n",
                 " ".repeat(pos - beg),
                 "^".repeat(cmp::min(origin_pos + 1, next_crlf) - origin_pos)
@@ -126,7 +117,7 @@ fn print_parse_error(origin_path: &PathBuf, origin_pos: &usize) {
     }
 }
 
-fn analyze_mod_defs<W: Write>(writer: &mut W, syntax_tree: &SyntaxTree) {
+fn analyze_mod_defs(syntax_tree: &SyntaxTree) {
     // &SyntaxTree is iterable
     for node in syntax_tree {
         // The type of each node is RefNode
@@ -138,27 +129,27 @@ fn analyze_mod_defs<W: Write>(writer: &mut W, syntax_tree: &SyntaxTree) {
                 // Original string can be got by SyntaxTree::get_str(self, node: &RefNode)
                 let id = syntax_tree.get_str(&id).unwrap();
                 // Declare the new module
-				write!(writer, "      - mod_name: \"{}\"\n", id).unwrap();
-				write!(writer, "        mod_insts:\n").unwrap();
+				println!("      - mod_name: \"{}\"", id);
+				println!("        mod_insts:");
             }
             RefNode::ModuleDeclarationAnsi(x) => {
                 let id = unwrap_node!(x, ModuleIdentifier).unwrap();
                 let id = get_identifier(id).unwrap();
                 let id = syntax_tree.get_str(&id).unwrap();
-				write!(writer, "      - mod_name: \"{}\"\n", id).unwrap();
-				write!(writer, "        mod_insts:\n").unwrap();
+				println!("      - mod_name: \"{}\"", id);
+				println!("        mod_insts:");
             }
             RefNode::ModuleInstantiation(x) => {
 				// write the module name
 				let id = unwrap_node!(x, ModuleIdentifier).unwrap();
 				let id = get_identifier(id).unwrap();
                 let id = syntax_tree.get_str(&id).unwrap();
-                write!(writer, "          - mod_name: \"{}\"\n", id).unwrap();
+                println!("          - mod_name: \"{}\"", id);
                 // write the instance name
 				let id = unwrap_node!(x, InstanceIdentifier).unwrap();
 				let id = get_identifier(id).unwrap();
                 let id = syntax_tree.get_str(&id).unwrap();
-                write!(writer, "            inst_name: \"{}\"\n", id).unwrap();
+                println!("            inst_name: \"{}\"", id);
 			}
             _ => (),
         }
