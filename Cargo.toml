@@ -13,5 +13,5 @@ edition = "2018"
 [dependencies]
 sv-parser = "0.6.3"
 sv-parser-error = "0.6.3"
-sv-parser-pp = "0.6.3"
+sv-parser-syntaxtree = "0.6.3"
 structopt = "0.3.2"

@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 use std::error::Error as StdError;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, BufWriter, Write};
 use std::path::PathBuf;
 use std::{cmp, process};
 use structopt::StructOpt;
-use sv_parser::parse_sv;
+use sv_parser::{parse_sv, SyntaxTree, unwrap_node, Locate, RefNode};
 use sv_parser_error::Error;
-use sv_parser_pp::preprocess::preprocess;
 
 #[derive(StructOpt)]
 struct Opt {
@@ -17,64 +16,53 @@ struct Opt {
     #[structopt(short = "i", long = "include", multiple = true, number_of_values = 1)]
     pub includes: Vec<PathBuf>,
 
-    /// Show syntax tree
-    #[structopt(short = "t", long = "tree")]
-    pub tree: bool,
-
-    /// Show preprocesed text
-    #[structopt(short = "p", long = "pp")]
-    pub pp: bool,
-
-    /// Quiet
-    #[structopt(short = "q", long = "quiet")]
-    pub quiet: bool,
+    /// Output file
+    #[structopt(short = "o", long = "output", default_value = "out.yaml")]
+    pub out_file: String
 }
 
 fn main() {
     let opt = Opt::from_args();
+    
     let mut defines = HashMap::new();
-    let mut exit = 0;
+    let mut exit_code = 0;
+    
+    let write_file = File::create(opt.out_file).unwrap();
+    let mut writer = BufWriter::new(&write_file);
+    
+    write!(&mut writer, "files:\n").unwrap();
     for path in &opt.files {
-        if opt.pp {
-            match preprocess(&path, &defines, &opt.includes, false) {
-                Ok((preprocessed_text, new_defines)) => {
-                    println!("{}", preprocessed_text.text());
-                    defines = new_defines;
-                }
-                _ => (),
+        match parse_sv(&path, &defines, &opt.includes, false) {
+            Ok((syntax_tree, new_defines)) => {
+				write!(&mut writer, "  - file_name: \"{}\"\n", path.to_str().unwrap()).unwrap();
+				write!(&mut writer, "    mod_defs:\n").unwrap();
+				analyze_mod_defs(&mut writer, &syntax_tree);
+                defines = new_defines;
+                println!("parse succeeded: {:?}", path);
             }
-        } else {
-            match parse_sv(&path, &defines, &opt.includes, false) {
-                Ok((syntax_tree, new_defines)) => {
-                    if opt.tree {
-                        println!("{}", syntax_tree);
+            Err(x) => {
+                match x {
+                    Error::Parse(Some((origin_path, origin_pos))) => {
+                        println!("parse failed: {:?}", path);
+                        print_parse_error(&origin_path, &origin_pos);
                     }
-                    defines = new_defines;
-                    if !opt.quiet {
-                        println!("parse succeeded: {:?}", path);
-                    }
-                }
-                Err(x) => {
-                    match x {
-                        Error::Parse(Some((origin_path, origin_pos))) => {
-                            println!("parse failed: {:?}", path);
-                            print_parse_error(&origin_path, &origin_pos);
-                        }
-                        x => {
-                            println!("parse failed: {:?} ({})", path, x);
-                            let mut err = x.source();
-                            while let Some(x) = err {
-                                println!("  Caused by {}", x);
-                                err = x.source();
-                            }
+                    x => {
+                        println!("parse failed: {:?} ({})", path, x);
+                        let mut err = x.source();
+                        while let Some(x) = err {
+                            println!("  Caused by {}", x);
+                            err = x.source();
                         }
                     }
-                    exit = 1;
                 }
+                exit_code = 1;
             }
         }
     }
-    process::exit(exit);
+    writer.flush().unwrap();
+
+    // exit when done
+    process::exit(exit_code);
 }
 
 static CHAR_CR: u8 = 0x0d;
@@ -137,3 +125,56 @@ fn print_parse_error(origin_path: &PathBuf, origin_pos: &usize) {
         }
     }
 }
+
+fn analyze_mod_defs<W: Write>(writer: &mut W, syntax_tree: &SyntaxTree) {
+    // &SyntaxTree is iterable
+    for node in syntax_tree {
+        // The type of each node is RefNode
+        match node {
+            RefNode::ModuleDeclarationNonansi(x) => {
+                // unwrap_node! gets the nearest ModuleIdentifier from x
+                let id = unwrap_node!(x, ModuleIdentifier).unwrap();
+                let id = get_identifier(id).unwrap();
+                // Original string can be got by SyntaxTree::get_str(self, node: &RefNode)
+                let id = syntax_tree.get_str(&id).unwrap();
+                // Declare the new module
+				write!(writer, "      - mod_name: \"{}\"\n", id).unwrap();
+				write!(writer, "        mod_insts:\n").unwrap();
+            }
+            RefNode::ModuleDeclarationAnsi(x) => {
+                let id = unwrap_node!(x, ModuleIdentifier).unwrap();
+                let id = get_identifier(id).unwrap();
+                let id = syntax_tree.get_str(&id).unwrap();
+				write!(writer, "      - mod_name: \"{}\"\n", id).unwrap();
+				write!(writer, "        mod_insts:\n").unwrap();
+            }
+            RefNode::ModuleInstantiation(x) => {
+				// write the module name
+				let id = unwrap_node!(x, ModuleIdentifier).unwrap();
+				let id = get_identifier(id).unwrap();
+                let id = syntax_tree.get_str(&id).unwrap();
+                write!(writer, "          - mod_name: \"{}\"\n", id).unwrap();
+                // write the instance name
+				let id = unwrap_node!(x, InstanceIdentifier).unwrap();
+				let id = get_identifier(id).unwrap();
+                let id = syntax_tree.get_str(&id).unwrap();
+                write!(writer, "            inst_name: \"{}\"\n", id).unwrap();
+			}
+            _ => (),
+        }
+    }
+}
+
+fn get_identifier(node: RefNode) -> Option<Locate> {
+    // unwrap_node! can take multiple types
+    match unwrap_node!(node, SimpleIdentifier, EscapedIdentifier) {
+        Some(RefNode::SimpleIdentifier(x)) => {
+            return Some(x.nodes.0);
+        }
+        Some(RefNode::EscapedIdentifier(x)) => {
+            return Some(x.nodes.0);
+        }
+        _ => None,
+    }
+}
+
