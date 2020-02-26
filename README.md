@@ -57,3 +57,16 @@ parse failed: "verilog/broken.sv"
 > echo $?
 1
 ```
+
+It is also possible to specify files to be included on the command line, via the ``-i INCLUDE_PATH`` option.  Multiple include paths may be specified:
+
+```shell
+> svinst verilog/inc_test.sv -i verilog/
+files:
+  - file_name: "verilog/inc_test.sv"
+    mod_defs:
+      - mod_name: "inc_top"
+        mod_insts:
+          - mod_name: "mod_name_from_inc_sv"
+            inst_name: "I0"
+```
