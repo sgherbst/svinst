@@ -70,3 +70,18 @@ files:
           - mod_name: "mod_name_from_inc_sv"
             inst_name: "I0"
 ```
+
+Pre-processor defines can be set from the command line as well:
+
+```shell
+> svinst verilog/def_test.sv -d MODULE_NAME=module_name_from_define -d EXTRA_INSTANCE
+files:
+  - file_name: "verilog/def_test.sv"
+    mod_defs:
+      - mod_name: "def_top"
+        mod_insts:
+          - mod_name: "module_name_from_define"
+            inst_name: "I0"
+          - mod_name: "module_from_ifdef"
+            inst_name: "I1"
+```
