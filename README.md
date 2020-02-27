@@ -58,7 +58,7 @@ parse failed: "verilog/broken.sv"
 1
 ```
 
-It is also possible to specify files to be included on the command line, via the ``-i INCLUDE_PATH`` option.  Multiple include paths may be specified:
+It is also possible to specify files to be included on the command line, via the ``-i INCLUDE_PATH`` option.  Multiple include paths may be specified; pass each separately via individual ``-i`` options.
 
 ```shell
 > svinst verilog/inc_test.sv -i verilog/
@@ -71,7 +71,7 @@ files:
             inst_name: "I0"
 ```
 
-Pre-processor defines can be set from the command line as well:
+Pre-processor defines can be set from the command line as well.  In this example, the first ``define`` has both a name and a value, controlling the name of the instantiated module from a ``define`` variable.  The second define has only a name, and it causes a second module to be instantiated only if it has be defined.
 
 ```shell
 > svinst verilog/def_test.sv -d MODULE_NAME=module_name_from_define -d EXTRA_INSTANCE
