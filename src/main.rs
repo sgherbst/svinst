@@ -5,32 +5,54 @@ use std::io::Read;
 use std::path::PathBuf;
 use std::{cmp, process};
 use structopt::StructOpt;
-use sv_parser::{parse_sv, SyntaxTree, unwrap_node, Locate, RefNode};
+use sv_parser::{parse_sv, SyntaxTree, unwrap_node, Locate, RefNode, Define, DefineText};
 use sv_parser_error::Error;
+use enquote;
 
 #[derive(StructOpt)]
 struct Opt {
     pub files: Vec<PathBuf>,
 
+    /// Define
+    #[structopt(short = "d", long = "define", multiple = true, number_of_values = 1)]
+    pub defines: Vec<String>,
+
     /// Include path
     #[structopt(short = "i", long = "include", multiple = true, number_of_values = 1)]
     pub includes: Vec<PathBuf>,
+
+    /// Ignore any include
+    #[structopt(long = "ignore-include")]
+    pub ignore_include: bool
 }
+
 
 fn main() {
     let opt = Opt::from_args();
-    
+
+    // read in define variables
     let mut defines = HashMap::new();
-    let mut exit_code = 0;
-        
+    for define in &opt.defines {
+		let mut define = define.splitn(2, '=');
+        let ident = String::from(define.next().unwrap());
+        let text = if let Some(x) = define.next() {
+            let x = enquote::unescape(x, None).unwrap();
+            Some(DefineText::new(x, None))
+        } else {
+            None
+        };
+        let define = Define::new(ident.clone(), vec![], text);
+        defines.insert(ident, Some(define));
+	}
+    
+    // parse files
     println!("files:");
     for path in &opt.files {
-        match parse_sv(&path, &defines, &opt.includes, false) {
-            Ok((syntax_tree, new_defines)) => {
+        match parse_sv(&path, &defines, &opt.includes, opt.ignore_include) {
+            Ok((syntax_tree, _new_defines)) => {
 				println!("  - file_name: \"{}\"", path.to_str().unwrap());
 				println!("    mod_defs:");
 				analyze_mod_defs(&syntax_tree);
-                defines = new_defines;
             }
             Err(x) => {
                 match x {
@@ -47,13 +69,13 @@ fn main() {
                         }
                     }
                 }
-                exit_code = 1;
+				process::exit(1);
             }
         }
     }
 
     // exit when done
-    process::exit(exit_code);
+    process::exit(0);
 }
 
 static CHAR_CR: u8 = 0x0d;
