@@ -4,7 +4,7 @@ This tool takes a SystemVerilog file as input and produces as output the module(
 
 ## Installation
 
-Download a binary from the [Releases](https://github.com/sgherbst/svinst/releases) tab, or clone and build using a ``make`` target for your system:
+Download a binary from the [Releases](https://github.com/sgherbst/svinst/releases) tab, or clone and build using a ``make`` target for your system.  If you want to build the code yourself, you'll need to have [Rust](https://www.rust-lang.org/tools/install) installed.
 
 ```shell
 > git clone https://github.com/sgherbst/svinst.git
@@ -56,4 +56,17 @@ parse failed: "verilog/broken.sv"
   |
 > echo $?
 1
+```
+
+It is also possible to specify files to be included on the command line, via the ``-i INCLUDE_PATH`` option.  Multiple include paths may be specified:
+
+```shell
+> svinst verilog/inc_test.sv -i verilog/
+files:
+  - file_name: "verilog/inc_test.sv"
+    mod_defs:
+      - mod_name: "inc_top"
+        mod_insts:
+          - mod_name: "mod_name_from_inc_sv"
+            inst_name: "I0"
 ```
