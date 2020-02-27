@@ -6,7 +6,9 @@ This tool takes a SystemVerilog file as input and produces as output the module(
 
 ## Installation
 
-Download a binary from the [Releases](https://github.com/sgherbst/svinst/releases) tab, or clone and build using a ``make`` target for your system.  If you want to build the code yourself, you'll need to have [Rust](https://www.rust-lang.org/tools/install) installed.
+Download a binary for your system from the [Releases](https://github.com/sgherbst/svinst/releases) tab.
+
+If you want to build the code yourself, you'll need to have [Rust](https://www.rust-lang.org/tools/install) installed.  Then clone+build using the appropriate Makefile target. 
 
 ```shell
 > git clone https://github.com/sgherbst/svinst.git
