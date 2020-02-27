@@ -7,6 +7,7 @@ use std::{cmp, process};
 use structopt::StructOpt;
 use sv_parser::{parse_sv, SyntaxTree, unwrap_node, Locate, RefNode, Define, DefineText};
 use sv_parser_error::Error;
+use sv_parser_syntaxtree::*;
 use enquote;
 
 #[derive(StructOpt)]
@@ -23,7 +24,11 @@ struct Opt {
 
     /// Ignore any include
     #[structopt(long = "ignore-include")]
-    pub ignore_include: bool
+    pub ignore_include: bool,
+
+    /// Ignore any include
+    #[structopt(long = "full-tree")]
+    pub full_tree: bool
 }
 
 
@@ -51,8 +56,13 @@ fn main() {
         match parse_sv(&path, &defines, &opt.includes, opt.ignore_include) {
             Ok((syntax_tree, _new_defines)) => {
 				println!("  - file_name: \"{}\"", path.to_str().unwrap());
-				println!("    mod_defs:");
-				analyze_mod_defs(&syntax_tree);
+				if !opt.full_tree {
+					println!("    mod_defs:");
+					analyze_mod_defs(&syntax_tree);
+				} else {
+					println!("    syntax_tree:");
+					print_full_tree(&syntax_tree);
+				}
             }
             Err(x) => {
                 match x {
@@ -176,6 +186,43 @@ fn analyze_mod_defs(syntax_tree: &SyntaxTree) {
             _ => (),
         }
     }
+}
+
+fn print_full_tree(syntax_tree: &SyntaxTree) {
+	let mut skip = false;
+	let mut depth = 3;
+	for node in syntax_tree.into_iter().event() {
+		match node {
+			NodeEvent::Enter(RefNode::Locate(locate)) => {
+				if !skip {
+					println!("{}- Token: \"{}\"",
+					         "  ".repeat(depth),
+					         syntax_tree.get_str(locate).unwrap());
+					println!("{}  Line: {}",
+					         "  ".repeat(depth),
+					         locate.line);
+				}
+				depth += 1;
+			}
+			NodeEvent::Enter(RefNode::WhiteSpace(_)) => {
+				skip = true;
+			}
+			NodeEvent::Leave(RefNode::WhiteSpace(_)) => {
+				skip = false;
+			}
+			NodeEvent::Enter(x) => {
+				if !skip {
+					println!("{}- {}:",
+					         "  ".repeat(depth),
+					         x);
+				}
+				depth += 1;
+			}
+			NodeEvent::Leave(_) => {
+				depth -= 1;
+			}
+		}
+	}
 }
 
 fn get_identifier(node: RefNode) -> Option<Locate> {
