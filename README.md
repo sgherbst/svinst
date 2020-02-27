@@ -4,9 +4,15 @@
 
 This tool takes a SystemVerilog file as input and produces as output the module(s) declared in that file, along with the module(s) instantiated in each one of those module declarations.  It uses [sv-parser](https://github.com/dalance/sv-parser) and is adapted from [svlint](https://github.com/dalance/svlint).
 
+## Purpose
+
+The Verilog language has contains features for defining configs and libraries.  However, these features are not well-supported by open-source tools, and even some commercial synthesis tools.  By extracting a list of modules defined and instantiated in a file, a user can work around this problem by constructing their own design hierarchy outside of Verilog, and then passing that list of files back into the simulator / synthesis tool.
+
 ## Installation
 
-Download a binary from the [Releases](https://github.com/sgherbst/svinst/releases) tab, or clone and build using a ``make`` target for your system.  If you want to build the code yourself, you'll need to have [Rust](https://www.rust-lang.org/tools/install) installed.
+Download a binary for your system from the [Releases](https://github.com/sgherbst/svinst/releases) tab.
+
+If you want to build the code yourself, you'll need to have [Rust](https://www.rust-lang.org/tools/install) installed.  Then clone+build using the appropriate Makefile target. 
 
 ```shell
 > git clone https://github.com/sgherbst/svinst.git
@@ -15,10 +21,6 @@ Download a binary from the [Releases](https://github.com/sgherbst/svinst/release
 > make release_win
 > make release_mac
 ```
-
-## Purpose
-
-The Verilog language has contains features for defining configs and libraries.  However, these features are not well-supported by open-source tools, and even some commercial synthesis tools.  By extracting a list of modules defined and instantiated in a file, a user can work around this problem by constructing their own design hierarchy outside of Verilog, and then passing that list of files back into the simulator / synthesis tool.
 
 ## Usage
 
