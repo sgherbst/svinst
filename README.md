@@ -16,7 +16,7 @@ Download a binary from the [Releases](https://github.com/sgherbst/svinst/release
 
 ## Purpose
 
-The Verilog language has contained features for defining configs and libraries for close to 20 years.  However, these features are not well-supported by open-source tools, and even some commercial synthesis tools.  By extracting a list of modules defined and instantiated in a file, a user can work around this problem by constructing their own design hierarchy outside of Verilog, and then passing that list of files back into the simulator / synthesis tool.
+The Verilog language has contains features for defining configs and libraries.  However, these features are not well-supported by open-source tools, and even some commercial synthesis tools.  By extracting a list of modules defined and instantiated in a file, a user can work around this problem by constructing their own design hierarchy outside of Verilog, and then passing that list of files back into the simulator / synthesis tool.
 
 ## Usage
 
