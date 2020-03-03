@@ -15,7 +15,7 @@ The Verilog language has contains features for defining configs and libraries.  
 
 You can download a binary for your system from the [Releases](https://github.com/sgherbst/svinst/releases) tab.  This method does not require Rust be installed.
 
-Alternatively, you can install the package with Cargo:
+Alternatively, you can install the package with [Cargo](https://crates.io/crates/svinst).:
 ```shell
 > cargo install svinst
 ```
