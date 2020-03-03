@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::{cmp, process};
 use structopt::StructOpt;
 use sv_parser::{parse_sv, SyntaxTree, unwrap_node, Locate, RefNode, Define, DefineText};
-use sv_parser_error::Error;
+use sv_parser_error;
 use sv_parser_syntaxtree::*;
 use enquote;
 
@@ -31,9 +31,15 @@ struct Opt {
     pub full_tree: bool
 }
 
-
 fn main() {
     let opt = Opt::from_args();
+    let exit_code = run_opt(&opt);
+    process::exit(exit_code);
+}
+
+fn run_opt(
+	opt: &Opt
+) -> i32 {
 
     // read in define variables
     let mut defines = HashMap::new();
@@ -49,6 +55,9 @@ fn main() {
         let define = Define::new(ident.clone(), vec![], text);
         defines.insert(ident, Some(define));
 	}
+    
+    // flag to determine parsing status
+    let mut exit_code = 0;
     
     // parse files
     println!("files:");
@@ -66,7 +75,7 @@ fn main() {
             }
             Err(x) => {
                 match x {
-                    Error::Parse(Some((origin_path, origin_pos))) => {
+                    sv_parser_error::Error::Parse(Some((origin_path, origin_pos))) => {
                         eprintln!("parse failed: {:?}", path);
                         print_parse_error(&origin_path, &origin_pos);
                     }
@@ -79,19 +88,22 @@ fn main() {
                         }
                     }
                 }
-				process::exit(1);
+				exit_code = 1;
             }
         }
     }
-
-    // exit when done
-    process::exit(0);
+    
+    // return exit code
+    exit_code
 }
 
 static CHAR_CR: u8 = 0x0d;
 static CHAR_LF: u8 = 0x0a;
 
-fn print_parse_error(origin_path: &PathBuf, origin_pos: &usize) {
+fn print_parse_error(
+	origin_path: &PathBuf,
+	origin_pos: &usize
+) {
     let mut f = File::open(&origin_path).unwrap();
     let mut s = String::new();
     let _ = f.read_to_string(&mut s);
@@ -149,7 +161,9 @@ fn print_parse_error(origin_path: &PathBuf, origin_pos: &usize) {
     }
 }
 
-fn analyze_mod_defs(syntax_tree: &SyntaxTree) {
+fn analyze_mod_defs(
+	syntax_tree: &SyntaxTree
+) {
     // &SyntaxTree is iterable
     for node in syntax_tree {
         // The type of each node is RefNode
@@ -188,7 +202,9 @@ fn analyze_mod_defs(syntax_tree: &SyntaxTree) {
     }
 }
 
-fn print_full_tree(syntax_tree: &SyntaxTree) {
+fn print_full_tree(
+	syntax_tree: &SyntaxTree
+) {
 	let mut skip = false;
 	let mut depth = 3;
 	for node in syntax_tree.into_iter().event() {
@@ -225,7 +241,9 @@ fn print_full_tree(syntax_tree: &SyntaxTree) {
 	}
 }
 
-fn get_identifier(node: RefNode) -> Option<Locate> {
+fn get_identifier(
+	node: RefNode
+) -> Option<Locate> {
     // unwrap_node! can take multiple types
     match unwrap_node!(node, SimpleIdentifier, EscapedIdentifier) {
         Some(RefNode::SimpleIdentifier(x)) => {
@@ -238,3 +256,81 @@ fn get_identifier(node: RefNode) -> Option<Locate> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	fn run_opt_expect(opt: &Opt, val: i32) {
+		let ret = run_opt(&opt);
+		assert_eq!(ret, val);
+	}
+	 
+    fn expect_pass(opt: &Opt) {
+		run_opt_expect(opt, 0);
+	}
+	
+	fn expect_fail(opt: &Opt) {
+		run_opt_expect(opt, 1);
+	}
+    
+    #[test]
+    fn test_test() {
+        let opt = Opt{
+			files: vec![PathBuf::from("testcases/pass/test.sv")],
+			defines: vec![],
+			includes: vec![],
+			full_tree: false,
+			ignore_include: false
+		};
+		expect_pass(&opt);
+    }
+    
+    #[test]
+    fn test_broken() {
+        let opt = Opt{
+			files: vec![PathBuf::from("testcases/fail/broken.sv")],
+			defines: vec![],
+			includes: vec![],
+			full_tree: false,
+			ignore_include: false
+		};
+		expect_fail(&opt);
+    }
+    
+    #[test]
+    fn test_inc_test() {
+        let opt = Opt{
+			files: vec![PathBuf::from("testcases/pass/inc_test.sv")],
+			defines: vec![],
+			includes: vec![PathBuf::from("testcases/pass")],
+			full_tree: false,
+			ignore_include: false
+		};
+		expect_pass(&opt);
+    }
+    
+    #[test]
+    fn test_def_test() {
+        let opt = Opt{
+			files: vec![PathBuf::from("testcases/pass/def_test.sv")],
+			defines: vec![String::from("MODULE_NAME=module_name_from_define"),
+			              String::from("EXTRA_INSTANCE")],
+			includes: vec![],
+			full_tree: false,
+			ignore_include: false
+		};
+		expect_pass(&opt);
+    }
+ 
+	#[test]
+    fn test_simple() {
+        let opt = Opt{
+			files: vec![PathBuf::from("testcases/pass/simple.sv")],
+			defines: vec![],
+			includes: vec![],
+			full_tree: true,
+			ignore_include: false
+		};
+		expect_pass(&opt);
+    }
+}
