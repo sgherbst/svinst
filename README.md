@@ -13,16 +13,11 @@ The Verilog language has contains features for defining configs and libraries.  
 
 ## Installation
 
-Download a binary for your system from the [Releases](https://github.com/sgherbst/svinst/releases) tab.
+You can download a binary for your system from the [Releases](https://github.com/sgherbst/svinst/releases) tab.  This method does not require Rust be installed.
 
-If you want to build the code yourself, you'll need to have [Rust](https://www.rust-lang.org/tools/install) installed.  Then clone+build using the appropriate Makefile target. 
-
+Alternatively, you can install the package with Cargo:
 ```shell
-> git clone https://github.com/sgherbst/svinst.git
-> cd svinst
-> make release_lnx
-> make release_win
-> make release_mac
+> cargo install svinst
 ```
 
 ## Usage
