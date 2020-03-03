@@ -89,3 +89,32 @@ files:
           - mod_name: "module_from_ifdef"
             inst_name: "I1"
 ```
+
+It is also possible to generate the full syntax tree for SystemVerilog file(s) using the ``full-tree`` option.  The output is still in YAML format:
+
+```shell
+> svinst verilog/simple.sv --full-tree
+files:
+  - file_name: "verilog/simple.sv"
+    syntax_tree:
+      - SourceText:
+        - Description:
+          - ModuleDeclaration:
+            - ModuleDeclarationAnsi:
+              - ModuleAnsiHeader:
+                - ModuleKeyword:
+                  - Keyword:
+                    - Token: "module"
+                      Line: 1
+                - ModuleIdentifier:
+                  - Identifier:
+                    - SimpleIdentifier:
+                      - Token: "A"
+                        Line: 1
+                - Symbol:
+                  - Token: ";"
+                    Line: 1
+              - Keyword:
+                - Token: "endmodule"
+                  Line: 2
+```
