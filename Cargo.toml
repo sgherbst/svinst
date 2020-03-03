@@ -1,9 +1,9 @@
 [package]
 name = "svinst"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["sgherbst@gmail.com"]
 repository = "https://github.com/sgherbst/svinst"
-keywords = ["parser", "verilog", "systemverilog", "module", "modules", "instance", "instances"]
+keywords = ["parser", "verilog", "systemverilog"]
 categories = ["parsing"]
 license = "MIT"
 readme = "README.md"
