@@ -30,19 +30,19 @@ The ``svinst`` binary accepts one or more SystemVerilog files as input, and prin
 > svinst verilog/test.sv
 files:
   - file_name: "verilog/test.sv"
-    mod_defs:
+    defs:
       - mod_name: "A"
-        mod_insts:
+        insts:
       - mod_name: "B"
-        mod_insts:
+        insts:
       - mod_name: "C"
-        mod_insts:
+        insts:
           - mod_name: "A"
             inst_name: "I0"
           - mod_name: "B"
             inst_name: "I1"
       - mod_name: "D"
-        mod_insts:
+        insts:
           - mod_name: "X"
             inst_name: "I0"
           - mod_name: "Y"
@@ -68,9 +68,9 @@ It is also possible to specify files to be included on the command line, via the
 > svinst verilog/inc_test.sv -i verilog/
 files:
   - file_name: "verilog/inc_test.sv"
-    mod_defs:
+    defs:
       - mod_name: "inc_top"
-        mod_insts:
+        insts:
           - mod_name: "mod_name_from_inc_sv"
             inst_name: "I0"
 ```
@@ -81,9 +81,9 @@ Pre-processor defines can be set from the command line as well.  In this example
 > svinst verilog/def_test.sv -d MODULE_NAME=module_name_from_define -d EXTRA_INSTANCE
 files:
   - file_name: "verilog/def_test.sv"
-    mod_defs:
+    defs:
       - mod_name: "def_top"
-        mod_insts:
+        insts:
           - mod_name: "module_name_from_define"
             inst_name: "I0"
           - mod_name: "module_from_ifdef"
