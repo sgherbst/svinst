@@ -66,8 +66,8 @@ fn run_opt(
             Ok((syntax_tree, _new_defines)) => {
 				println!("  - file_name: \"{}\"", path.to_str().unwrap());
 				if !opt.full_tree {
-					println!("    mod_defs:");
-					analyze_mod_defs(&syntax_tree);
+					println!("    defs:");
+					analyze_defs(&syntax_tree);
 				} else {
 					println!("    syntax_tree:");
 					print_full_tree(&syntax_tree);
@@ -161,7 +161,7 @@ fn print_parse_error(
     }
 }
 
-fn analyze_mod_defs(
+fn analyze_defs(
 	syntax_tree: &SyntaxTree
 ) {
     // &SyntaxTree is iterable
@@ -176,14 +176,28 @@ fn analyze_mod_defs(
                 let id = syntax_tree.get_str(&id).unwrap();
                 // Declare the new module
 				println!("      - mod_name: \"{}\"", id);
-				println!("        mod_insts:");
+				println!("        insts:");
             }
             RefNode::ModuleDeclarationAnsi(x) => {
                 let id = unwrap_node!(x, ModuleIdentifier).unwrap();
                 let id = get_identifier(id).unwrap();
                 let id = syntax_tree.get_str(&id).unwrap();
 				println!("      - mod_name: \"{}\"", id);
-				println!("        mod_insts:");
+				println!("        insts:");
+            }
+            RefNode::PackageDeclaration(x) => {
+                let id = unwrap_node!(x, PackageIdentifier).unwrap();
+                let id = get_identifier(id).unwrap();
+                let id = syntax_tree.get_str(&id).unwrap();
+				println!("      - pkg_name: \"{}\"", id);
+				println!("        insts:");
+            }
+            RefNode::InterfaceDeclaration(x) => {
+                let id = unwrap_node!(x, InterfaceIdentifier).unwrap();
+                let id = get_identifier(id).unwrap();
+                let id = syntax_tree.get_str(&id).unwrap();
+				println!("      - intf_name: \"{}\"", id);
+				println!("        insts:");
             }
             RefNode::ModuleInstantiation(x) => {
 				// write the module name
@@ -196,6 +210,13 @@ fn analyze_mod_defs(
 				let id = get_identifier(id).unwrap();
                 let id = syntax_tree.get_str(&id).unwrap();
                 println!("            inst_name: \"{}\"", id);
+			}
+            RefNode::PackageImportItem(x) => {
+				// write the module name
+				let id = unwrap_node!(x, PackageIdentifier).unwrap();
+				let id = get_identifier(id).unwrap();
+                let id = syntax_tree.get_str(&id).unwrap();
+                println!("          - pkg_name: \"{}\"", id);
 			}
             _ => (),
         }
@@ -329,6 +350,30 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: true,
+			ignore_include: false
+		};
+		expect_pass(&opt);
+    }
+    
+    #[test]
+    fn test_pkg() {
+        let opt = Opt{
+			files: vec![PathBuf::from("testcases/pass/pkg.sv")],
+			defines: vec![],
+			includes: vec![],
+			full_tree: false,
+			ignore_include: false
+		};
+		expect_pass(&opt);
+    }
+    
+    #[test]
+    fn test_intf() {
+        let opt = Opt{
+			files: vec![PathBuf::from("testcases/pass/intf.sv")],
+			defines: vec![],
+			includes: vec![],
+			full_tree: false,
 			ignore_include: false
 		};
 		expect_pass(&opt);
