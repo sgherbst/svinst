@@ -170,59 +170,131 @@ fn analyze_defs(
         match node {
             RefNode::ModuleDeclarationNonansi(x) => {
                 // unwrap_node! gets the nearest ModuleIdentifier from x
-                let id = unwrap_node!(x, ModuleIdentifier).unwrap();
-                let id = get_identifier(id).unwrap();
+				let id = match unwrap_node!(x, ModuleIdentifier) {
+					None => { continue; },
+					Some(x) => x
+				};
+				let id = match get_identifier(id) {
+					None => { continue; },
+					Some(x) => x
+				};				
                 // Original string can be got by SyntaxTree::get_str(self, node: &RefNode)
-                let id = syntax_tree.get_str(&id).unwrap();
+                let id = match syntax_tree.get_str(&id) {
+					None => { continue; },
+					Some(x) => x
+				};	
                 // Declare the new module
 				println!("      - mod_name: \"{}\"", id);
 				println!("        insts:");
             }
             RefNode::ModuleDeclarationAnsi(x) => {
-                let id = unwrap_node!(x, ModuleIdentifier).unwrap();
-                let id = get_identifier(id).unwrap();
-                let id = syntax_tree.get_str(&id).unwrap();
+				let id = match unwrap_node!(x, ModuleIdentifier) {
+					None => { continue; },
+					Some(x) => x
+				};
+				let id = match get_identifier(id) {
+					None => { continue; },
+					Some(x) => x
+				};		
+                let id = match syntax_tree.get_str(&id) {
+					None => { continue; },
+					Some(x) => x
+				};	
 				println!("      - mod_name: \"{}\"", id);
 				println!("        insts:");
             }
             RefNode::PackageDeclaration(x) => {
-                let id = unwrap_node!(x, PackageIdentifier).unwrap();
-                let id = get_identifier(id).unwrap();
-                let id = syntax_tree.get_str(&id).unwrap();
+				let id = match unwrap_node!(x, PackageIdentifier) {
+					None => { continue; },
+					Some(x) => x
+				};
+				let id = match get_identifier(id) {
+					None => { continue; },
+					Some(x) => x
+				};		
+                let id = match syntax_tree.get_str(&id) {
+					None => { continue; },
+					Some(x) => x
+				};	
 				println!("      - pkg_name: \"{}\"", id);
 				println!("        insts:");
             }
             RefNode::InterfaceDeclaration(x) => {
-                let id = unwrap_node!(x, InterfaceIdentifier).unwrap();
-                let id = get_identifier(id).unwrap();
-                let id = syntax_tree.get_str(&id).unwrap();
+				let id = match unwrap_node!(x, InterfaceIdentifier) {
+					None => { continue; },
+					Some(x) => x
+				};
+				let id = match get_identifier(id) {
+					None => { continue; },
+					Some(x) => x
+				};		
+                let id = match syntax_tree.get_str(&id) {
+					None => { continue; },
+					Some(x) => x
+				};
 				println!("      - intf_name: \"{}\"", id);
 				println!("        insts:");
             }
             RefNode::ModuleInstantiation(x) => {
 				// write the module name
-				let id = unwrap_node!(x, ModuleIdentifier).unwrap();
-				let id = get_identifier(id).unwrap();
-                let id = syntax_tree.get_str(&id).unwrap();
+				let id = match unwrap_node!(x, ModuleIdentifier) {
+					None => { continue; },
+					Some(x) => x
+				};
+				let id = match get_identifier(id) {
+					None => { continue; },
+					Some(x) => x
+				};		
+                let id = match syntax_tree.get_str(&id) {
+					None => { continue; },
+					Some(x) => x
+				};
                 println!("          - mod_name: \"{}\"", id);
                 // write the instance name
-				let id = unwrap_node!(x, InstanceIdentifier).unwrap();
-				let id = get_identifier(id).unwrap();
-                let id = syntax_tree.get_str(&id).unwrap();
+				let id = match unwrap_node!(x, InstanceIdentifier) {
+					None => { continue; },
+					Some(x) => x
+				};
+				let id = match get_identifier(id) {
+					None => { continue; },
+					Some(x) => x
+				};		
+                let id = match syntax_tree.get_str(&id) {
+					None => { continue; },
+					Some(x) => x
+				};
                 println!("            inst_name: \"{}\"", id);
 			}
             RefNode::PackageImportItem(x) => {
 				// write the package name
-				let id = unwrap_node!(x, PackageIdentifier).unwrap();
-				let id = get_identifier(id).unwrap();
-                let id = syntax_tree.get_str(&id).unwrap();
+				let id = match unwrap_node!(x, PackageIdentifier) {
+					None => { continue; },
+					Some(x) => x
+				};
+				let id = match get_identifier(id) {
+					None => { continue; },
+					Some(x) => x
+				};		
+                let id = match syntax_tree.get_str(&id) {
+					None => { continue; },
+					Some(x) => x
+				};
                 println!("          - pkg_name: \"{}\"", id);
 			}
 			RefNode::ImplicitClassHandleOrClassScope(x) => {
 				// write the package name
-				let id = unwrap_node!(x, ClassIdentifier).unwrap();
-				let id = get_identifier(id).unwrap();
-                let id = syntax_tree.get_str(&id).unwrap();
+				let id = match unwrap_node!(x, ClassIdentifier) {
+					None => { continue; },
+					Some(x) => x
+				};
+				let id = match get_identifier(id) {
+					None => { continue; },
+					Some(x) => x
+				};		
+                let id = match syntax_tree.get_str(&id) {
+					None => { continue; },
+					Some(x) => x
+				};
                 println!("          - pkg_name: \"{}\"", id);
 			}
             _ => (),
@@ -378,6 +450,18 @@ mod tests {
     fn test_intf() {
         let opt = Opt{
 			files: vec![PathBuf::from("testcases/pass/intf.sv")],
+			defines: vec![],
+			includes: vec![],
+			full_tree: false,
+			ignore_include: false
+		};
+		expect_pass(&opt);
+    }
+    
+    #[test]
+    fn test_class() {
+        let opt = Opt{
+			files: vec![PathBuf::from("testcases/pass/class.sv")],
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
