@@ -212,8 +212,15 @@ fn analyze_defs(
                 println!("            inst_name: \"{}\"", id);
 			}
             RefNode::PackageImportItem(x) => {
-				// write the module name
+				// write the package name
 				let id = unwrap_node!(x, PackageIdentifier).unwrap();
+				let id = get_identifier(id).unwrap();
+                let id = syntax_tree.get_str(&id).unwrap();
+                println!("          - pkg_name: \"{}\"", id);
+			}
+			RefNode::ImplicitClassHandleOrClassScope(x) => {
+				// write the package name
+				let id = unwrap_node!(x, ClassIdentifier).unwrap();
 				let id = get_identifier(id).unwrap();
                 let id = syntax_tree.get_str(&id).unwrap();
                 println!("          - pkg_name: \"{}\"", id);
