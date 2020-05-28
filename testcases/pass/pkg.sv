@@ -21,3 +21,8 @@ endmodule
 
 package k;
 endpackage
+
+module M;
+    logic n;
+    assign n = P::q;
+endmodule
