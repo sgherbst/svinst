@@ -1,6 +1,11 @@
 name: Coverage
 
-on: [push]
+# Skip this step for now since the upload action seems to be broken:
+# https://github.com/codecov/codecov-action/issues/37
+on:
+  push:
+    branches-ignore:
+      - '**'
 
 jobs:
   test:
