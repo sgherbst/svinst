@@ -26,9 +26,13 @@ struct Opt {
     #[structopt(long = "ignore-include")]
     pub ignore_include: bool,
 
-    /// Ignore any include
+    /// Show the full syntax tree rather than just module instantiation
     #[structopt(long = "full-tree")]
-    pub full_tree: bool
+    pub full_tree: bool,
+ 
+    /// Treat each file as completely separate, not updating define variables after each file
+    #[structopt(long = "separate")]
+    pub separate: bool
 }
 
 fn main() {
@@ -63,7 +67,7 @@ fn run_opt(
     println!("files:");
     for path in &opt.files {
         match parse_sv(&path, &defines, &opt.includes, opt.ignore_include) {
-            Ok((syntax_tree, _new_defines)) => {
+            Ok((syntax_tree, new_defines)) => {
 				println!("  - file_name: \"{}\"", path.to_str().unwrap());
 				if !opt.full_tree {
 					println!("    defs:");
@@ -71,6 +75,10 @@ fn run_opt(
 				} else {
 					println!("    syntax_tree:");
 					print_full_tree(&syntax_tree);
+				}
+				// update the preprocessor state if desired
+				if !opt.separate {
+					defines = new_defines;
 				}
             }
             Err(x) => {
@@ -396,7 +404,8 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
-			ignore_include: false
+			ignore_include: false,
+			separate: false
 		};
 		expect_pass(&opt);
     }
@@ -408,7 +417,8 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
-			ignore_include: false
+			ignore_include: false,
+			separate: false
 		};
 		expect_fail(&opt);
     }
@@ -420,7 +430,8 @@ mod tests {
 			defines: vec![],
 			includes: vec![PathBuf::from("testcases/pass")],
 			full_tree: false,
-			ignore_include: false
+			ignore_include: false,
+			separate: false
 		};
 		expect_pass(&opt);
     }
@@ -433,7 +444,8 @@ mod tests {
 			              String::from("EXTRA_INSTANCE")],
 			includes: vec![],
 			full_tree: false,
-			ignore_include: false
+			ignore_include: false,
+			separate: false
 		};
 		expect_pass(&opt);
     }
@@ -445,7 +457,8 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: true,
-			ignore_include: false
+			ignore_include: false,
+			separate: false
 		};
 		expect_pass(&opt);
     }
@@ -457,7 +470,8 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
-			ignore_include: false
+			ignore_include: false,
+			separate: false
 		};
 		expect_pass(&opt);
     }
@@ -469,7 +483,8 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
-			ignore_include: false
+			ignore_include: false,
+			separate: false
 		};
 		expect_pass(&opt);
     }
@@ -481,7 +496,26 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
-			ignore_include: false
+			ignore_include: false,
+			separate: false
+		};
+		expect_pass(&opt);
+    }
+
+    #[test]
+    fn test_multi() {
+        let opt = Opt{
+			files: vec![
+			    PathBuf::from("testcases/pass/multi/define1.v"),
+			    PathBuf::from("testcases/pass/multi/test1.sv"),
+			    PathBuf::from("testcases/pass/multi/define2.v"),
+			    PathBuf::from("testcases/pass/multi/dut.v")
+			],
+			defines: vec![],
+			includes: vec![],
+			full_tree: false,
+			ignore_include: false,
+			separate: false
 		};
 		expect_pass(&opt);
     }
