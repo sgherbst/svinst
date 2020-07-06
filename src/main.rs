@@ -297,6 +297,22 @@ fn analyze_defs(
 				};
                 println!("          - pkg_name: \"{}\"", id);
 			}
+			RefNode::ImplicitClassHandleOrClassScopeOrPackageScope(x) => {
+				// write the package name
+				let id = match unwrap_node!(x, ClassIdentifier) {
+					None => { continue; },
+					Some(x) => x
+				};
+				let id = match get_identifier(id) {
+					None => { continue; },
+					Some(x) => x
+				};
+                let id = match syntax_tree.get_str(&id) {
+					None => { continue; },
+					Some(x) => x
+				};
+                println!("          - pkg_name: \"{}\"", id);
+			}
             _ => (),
         }
     }

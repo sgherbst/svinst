@@ -1,6 +1,6 @@
 [package]
 name = "svinst"
-version = "0.0.9"
+version = "0.1.1"
 authors = ["sgherbst@gmail.com"]
 repository = "https://github.com/sgherbst/svinst"
 keywords = ["parser", "verilog", "systemverilog"]
@@ -14,5 +14,5 @@ edition = "2018"
 sv-parser = "0.6.3"
 sv-parser-error = "0.6.3"
 sv-parser-syntaxtree = "0.6.3"
-structopt = "0.3.2"
-enquote = "1.0"
+structopt = "0.3.14"
+enquote = "1.0.3"
