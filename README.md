@@ -4,6 +4,7 @@
 [![Actions Status](https://github.com/sgherbst/svinst/workflows/Regression/badge.svg)](https://github.com/sgherbst/svinst/actions)
 [![codecov](https://codecov.io/gh/sgherbst/svinst/branch/master/graph/badge.svg)](https://codecov.io/gh/sgherbst/svinst)
 [![Crates.io](https://img.shields.io/crates/v/svinst.svg)](https://crates.io/crates/svinst)
+[![Join the chat at https://gitter.im/sgherbst/svinst](https://badges.gitter.im/sgherbst/svinst.svg)](https://gitter.im/sgherbst/svinst?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This tool takes a SystemVerilog file as input and produces as output the module(s) declared in that file, along with the module(s) instantiated in each one of those module declarations.  It uses [sv-parser](https://github.com/dalance/sv-parser) and is adapted from [svlint](https://github.com/dalance/svlint).
 
