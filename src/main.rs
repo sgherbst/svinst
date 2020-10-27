@@ -30,6 +30,10 @@ struct Opt {
     #[structopt(long = "full-tree")]
     pub full_tree: bool,
  
+	/// Show the macro definitions after processing each file
+	#[structopt(long = "show-macro-defs")]
+	pub show_macro_defs: bool,
+
     /// Treat each file as completely separate, not updating define variables after each file
     #[structopt(long = "separate")]
     pub separate: bool
@@ -79,6 +83,11 @@ fn run_opt(
 				// update the preprocessor state if desired
 				if !opt.separate {
 					defines = new_defines;
+				}
+				// show macro definitions if desired
+				if opt.show_macro_defs {
+					println!("    macro_defs:");
+					show_macro_defs(&defines);
 				}
             }
             Err(x) => {
@@ -167,6 +176,17 @@ fn print_parse_error(
             );
         }
     }
+}
+
+fn show_macro_defs(
+	defines: &HashMap<String, Option<Define>>
+) {
+	for (_, value) in defines.into_iter() {
+		match value {
+			Some(define) => println!("      - '{:?}'", define),
+			_ => (),
+		}
+	}
 }
 
 fn analyze_defs(
@@ -405,7 +425,8 @@ mod tests {
 			includes: vec![],
 			full_tree: false,
 			ignore_include: false,
-			separate: false
+			separate: false,
+			show_macro_defs: false
 		};
 		expect_pass(&opt);
     }
@@ -418,7 +439,8 @@ mod tests {
 			includes: vec![],
 			full_tree: false,
 			ignore_include: false,
-			separate: false
+			separate: false,
+			show_macro_defs: false
 		};
 		expect_fail(&opt);
     }
@@ -431,7 +453,8 @@ mod tests {
 			includes: vec![PathBuf::from("testcases/pass")],
 			full_tree: false,
 			ignore_include: false,
-			separate: false
+			separate: false,
+			show_macro_defs: false
 		};
 		expect_pass(&opt);
     }
@@ -445,7 +468,8 @@ mod tests {
 			includes: vec![],
 			full_tree: false,
 			ignore_include: false,
-			separate: false
+			separate: false,
+			show_macro_defs: true
 		};
 		expect_pass(&opt);
     }
@@ -458,7 +482,8 @@ mod tests {
 			includes: vec![],
 			full_tree: true,
 			ignore_include: false,
-			separate: false
+			separate: false,
+			show_macro_defs: false
 		};
 		expect_pass(&opt);
     }
@@ -471,7 +496,8 @@ mod tests {
 			includes: vec![],
 			full_tree: false,
 			ignore_include: false,
-			separate: false
+			separate: false,
+			show_macro_defs: false
 		};
 		expect_pass(&opt);
     }
@@ -484,7 +510,8 @@ mod tests {
 			includes: vec![],
 			full_tree: false,
 			ignore_include: false,
-			separate: false
+			separate: false,
+			show_macro_defs: false
 		};
 		expect_pass(&opt);
     }
@@ -497,7 +524,8 @@ mod tests {
 			includes: vec![],
 			full_tree: false,
 			ignore_include: false,
-			separate: false
+			separate: false,
+			show_macro_defs: false
 		};
 		expect_pass(&opt);
     }
@@ -515,7 +543,8 @@ mod tests {
 			includes: vec![],
 			full_tree: false,
 			ignore_include: false,
-			separate: false
+			separate: false,
+			show_macro_defs: false
 		};
 		expect_pass(&opt);
     }
