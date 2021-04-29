@@ -1,6 +1,6 @@
 [package]
 name = "svinst"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["sgherbst@gmail.com"]
 repository = "https://github.com/sgherbst/svinst"
 keywords = ["parser", "verilog", "systemverilog"]
