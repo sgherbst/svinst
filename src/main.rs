@@ -72,7 +72,7 @@ fn run_opt(
     for path in &opt.files {
         match parse_sv(&path, &defines, &opt.includes, opt.ignore_include) {
             Ok((syntax_tree, new_defines)) => {
-				println!("  - file_name: \"{}\"", path.to_str().unwrap());
+				println!("  - file_name: {}", escape_str(path.to_str().unwrap()));
 				if !opt.full_tree {
 					println!("    defs:");
 					analyze_defs(&syntax_tree);
@@ -212,7 +212,7 @@ fn analyze_defs(
 					Some(x) => x
 				};	
                 // Declare the new module
-				println!("      - mod_name: \"{}\"", id);
+				println!("      - mod_name: {}", escape_str(id));
 				println!("        insts:");
             }
             RefNode::ModuleDeclarationAnsi(x) => {
@@ -228,7 +228,7 @@ fn analyze_defs(
 					None => { continue; },
 					Some(x) => x
 				};	
-				println!("      - mod_name: \"{}\"", id);
+				println!("      - mod_name: {}", escape_str(id));
 				println!("        insts:");
             }
             RefNode::PackageDeclaration(x) => {
@@ -244,7 +244,7 @@ fn analyze_defs(
 					None => { continue; },
 					Some(x) => x
 				};	
-				println!("      - pkg_name: \"{}\"", id);
+				println!("      - pkg_name: {}", escape_str(id));
 				println!("        insts:");
             }
             RefNode::InterfaceDeclaration(x) => {
@@ -260,7 +260,7 @@ fn analyze_defs(
 					None => { continue; },
 					Some(x) => x
 				};
-				println!("      - intf_name: \"{}\"", id);
+				println!("      - intf_name: {}", escape_str(id));
 				println!("        insts:");
             }
             RefNode::ModuleInstantiation(x) => {
@@ -277,7 +277,7 @@ fn analyze_defs(
 					None => { continue; },
 					Some(x) => x
 				};
-                println!("          - mod_name: \"{}\"", id);
+                println!("          - mod_name: {}", escape_str(id));
                 // write the instance name
 				let id = match unwrap_node!(x, InstanceIdentifier) {
 					None => { continue; },
@@ -291,7 +291,7 @@ fn analyze_defs(
 					None => { continue; },
 					Some(x) => x
 				};
-                println!("            inst_name: \"{}\"", id);
+                println!("            inst_name: {}", escape_str(id));
 			}
             RefNode::PackageImportItem(x) => {
 				// write the package name
@@ -307,7 +307,7 @@ fn analyze_defs(
 					None => { continue; },
 					Some(x) => x
 				};
-                println!("          - pkg_name: \"{}\"", id);
+                println!("          - pkg_name: {}", escape_str(id));
 			}
 			RefNode::ImplicitClassHandleOrClassScope(x) => {
 				// write the package name
@@ -323,7 +323,7 @@ fn analyze_defs(
 					None => { continue; },
 					Some(x) => x
 				};
-                println!("          - pkg_name: \"{}\"", id);
+                println!("          - pkg_name: {}", escape_str(id));
 			}
 			RefNode::ImplicitClassHandleOrClassScopeOrPackageScope(x) => {
 				// write the package name
@@ -339,7 +339,7 @@ fn analyze_defs(
 					None => { continue; },
 					Some(x) => x
 				};
-                println!("          - pkg_name: \"{}\"", id);
+                println!("          - pkg_name: {}", escape_str(id));
 			}
             _ => (),
         }
@@ -355,9 +355,9 @@ fn print_full_tree(
 		match node {
 			NodeEvent::Enter(RefNode::Locate(locate)) => {
 				if !skip {
-					println!("{}- Token: \"{}\"",
+					println!("{}- Token: {}",
 					         "  ".repeat(depth),
-					         syntax_tree.get_str(locate).unwrap());
+					         escape_str(syntax_tree.get_str(locate).unwrap()));
 					println!("{}  Line: {}",
 					         "  ".repeat(depth),
 					         locate.line);
@@ -398,6 +398,73 @@ fn get_identifier(
         }
         _ => None,
     }
+}
+
+// escape_str adapted from this code:
+// https://github.com/chyh1990/yaml-rust/blob/6cd3ce4abe6894443645c48bdc375808ec911493/src/emitter.rs#L43-L104
+fn escape_str(v: &str) -> String {
+    let mut wr = String::new();
+    
+    wr.push_str("\"");
+
+    let mut start = 0;
+
+    for (i, byte) in v.bytes().enumerate() {
+        let escaped = match byte {
+            b'"' => "\\\"",
+            b'\\' => "\\\\",
+            b'\x00' => "\\u0000",
+            b'\x01' => "\\u0001",
+            b'\x02' => "\\u0002",
+            b'\x03' => "\\u0003",
+            b'\x04' => "\\u0004",
+            b'\x05' => "\\u0005",
+            b'\x06' => "\\u0006",
+            b'\x07' => "\\u0007",
+            b'\x08' => "\\b",
+            b'\t' => "\\t",
+            b'\n' => "\\n",
+            b'\x0b' => "\\u000b",
+            b'\x0c' => "\\f",
+            b'\r' => "\\r",
+            b'\x0e' => "\\u000e",
+            b'\x0f' => "\\u000f",
+            b'\x10' => "\\u0010",
+            b'\x11' => "\\u0011",
+            b'\x12' => "\\u0012",
+            b'\x13' => "\\u0013",
+            b'\x14' => "\\u0014",
+            b'\x15' => "\\u0015",
+            b'\x16' => "\\u0016",
+            b'\x17' => "\\u0017",
+            b'\x18' => "\\u0018",
+            b'\x19' => "\\u0019",
+            b'\x1a' => "\\u001a",
+            b'\x1b' => "\\u001b",
+            b'\x1c' => "\\u001c",
+            b'\x1d' => "\\u001d",
+            b'\x1e' => "\\u001e",
+            b'\x1f' => "\\u001f",
+            b'\x7f' => "\\u007f",
+            _ => continue,
+        };
+
+        if start < i {
+            wr.push_str(&v[start..i]);
+        }
+
+        wr.push_str(escaped);
+
+        start = i + 1;
+    }
+
+    if start != v.len() {
+        wr.push_str(&v[start..]);
+    }
+
+    wr.push_str("\"");
+    
+    wr
 }
 
 #[cfg(test)]
@@ -478,6 +545,20 @@ mod tests {
     fn test_simple() {
         let opt = Opt{
 			files: vec![PathBuf::from("testcases/pass/simple.sv")],
+			defines: vec![],
+			includes: vec![],
+			full_tree: true,
+			ignore_include: false,
+			separate: false,
+			show_macro_defs: false
+		};
+		expect_pass(&opt);
+    }
+    
+    #[test]
+    fn test_quotes() {
+        let opt = Opt{
+			files: vec![PathBuf::from("testcases/pass/quotes.sv")],
 			defines: vec![],
 			includes: vec![],
 			full_tree: true,
