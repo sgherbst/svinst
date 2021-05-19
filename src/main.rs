@@ -29,6 +29,10 @@ struct Opt {
     /// Show the full syntax tree rather than just module instantiation
     #[structopt(long = "full-tree")]
     pub full_tree: bool,
+
+    /// Include whitespace in output syntax tree
+    #[structopt(long = "include-whitespace")]
+    pub include_whitespace: bool,
  
 	/// Show the macro definitions after processing each file
 	#[structopt(long = "show-macro-defs")]
@@ -78,7 +82,7 @@ fn run_opt(
 					analyze_defs(&syntax_tree);
 				} else {
 					println!("    syntax_tree:");
-					print_full_tree(&syntax_tree);
+					print_full_tree(&syntax_tree, opt.include_whitespace);
 				}
 				// update the preprocessor state if desired
 				if !opt.separate {
@@ -347,7 +351,8 @@ fn analyze_defs(
 }
 
 fn print_full_tree(
-	syntax_tree: &SyntaxTree
+	syntax_tree: &SyntaxTree,
+	include_whitespace: bool
 ) {
 	let mut skip = false;
 	let mut depth = 3;
@@ -365,7 +370,9 @@ fn print_full_tree(
 				depth += 1;
 			}
 			NodeEvent::Enter(RefNode::WhiteSpace(_)) => {
-				skip = true;
+				if !include_whitespace {
+					skip = true;
+				}
 			}
 			NodeEvent::Leave(RefNode::WhiteSpace(_)) => {
 				skip = false;
@@ -491,6 +498,7 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: false
@@ -505,6 +513,7 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: false
@@ -519,6 +528,7 @@ mod tests {
 			defines: vec![],
 			includes: vec![PathBuf::from("testcases/pass")],
 			full_tree: false,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: false
@@ -534,6 +544,7 @@ mod tests {
 			              String::from("EXTRA_INSTANCE")],
 			includes: vec![],
 			full_tree: false,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: true
@@ -548,6 +559,7 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: true,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: false
@@ -562,6 +574,7 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: true,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: false
@@ -576,6 +589,7 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: false
@@ -590,6 +604,7 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: false
@@ -604,6 +619,7 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: false
@@ -623,6 +639,7 @@ mod tests {
 			defines: vec![],
 			includes: vec![],
 			full_tree: false,
+			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
 			show_macro_defs: false
