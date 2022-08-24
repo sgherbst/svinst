@@ -34,13 +34,17 @@ struct Opt {
     #[structopt(long = "include-whitespace")]
     pub include_whitespace: bool,
  
-	/// Show the macro definitions after processing each file
-	#[structopt(long = "show-macro-defs")]
-	pub show_macro_defs: bool,
+    /// Show the macro definitions after processing each file
+    #[structopt(long = "show-macro-defs")]
+    pub show_macro_defs: bool,
 
     /// Treat each file as completely separate, not updating define variables after each file
     #[structopt(long = "separate")]
-    pub separate: bool
+    pub separate: bool,
+
+    /// Allow incomplete
+    #[structopt(long = "allow_incomplete")]
+    pub allow_incomplete: bool
 }
 
 fn main() {
@@ -74,7 +78,7 @@ fn run_opt(
     // parse files
     println!("files:");
     for path in &opt.files {
-        match parse_sv(&path, &defines, &opt.includes, opt.ignore_include) {
+        match parse_sv(&path, &defines, &opt.includes, opt.ignore_include, opt.allow_incomplete) {
             Ok((syntax_tree, new_defines)) => {
 				println!("  - file_name: {}", escape_str(path.to_str().unwrap()));
 				if !opt.full_tree {
