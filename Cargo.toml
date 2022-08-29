@@ -11,8 +11,8 @@ description = "Determines the modules declared and instantiated in SystemVerilog
 edition = "2018"
 
 [dependencies]
-sv-parser = "0.8.3"
-sv-parser-error = "0.8.3"
-sv-parser-syntaxtree = "0.8.3"
+sv-parser = "0.12.1"
+sv-parser-error = "0.12.1"
+sv-parser-syntaxtree = "0.12.1"
 structopt = "0.3.20"
 enquote = "1.0.3"
