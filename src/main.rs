@@ -501,7 +501,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: false
+			show_macro_defs: false,
+			allow_incomplete: false
 		};
 		expect_pass(&opt);
     }
@@ -516,7 +517,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: false
+			show_macro_defs: false,
+			allow_incomplete: false
 		};
 		expect_fail(&opt);
     }
@@ -531,7 +533,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: false
+			show_macro_defs: false,
+			allow_incomplete: false
 		};
 		expect_pass(&opt);
     }
@@ -547,7 +550,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: true
+			show_macro_defs: true,
+			allow_incomplete: false
 		};
 		expect_pass(&opt);
     }
@@ -562,7 +566,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: false
+			show_macro_defs: false,
+			allow_incomplete: false
 		};
 		expect_pass(&opt);
     }
@@ -577,7 +582,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: false
+			show_macro_defs: false,
+			allow_incomplete: false
 		};
 		expect_pass(&opt);
     }
@@ -592,7 +598,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: false
+			show_macro_defs: false,
+			allow_incomplete: false
 		};
 		expect_pass(&opt);
     }
@@ -607,7 +614,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: false
+			show_macro_defs: false,
+			allow_incomplete: false
 		};
 		expect_pass(&opt);
     }
@@ -622,7 +630,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: false
+			show_macro_defs: false,
+			allow_incomplete: false
 		};
 		expect_pass(&opt);
     }
@@ -642,7 +651,8 @@ mod tests {
 			include_whitespace: false,
 			ignore_include: false,
 			separate: false,
-			show_macro_defs: false
+			show_macro_defs: false,
+			allow_incomplete: false
 		};
 		expect_pass(&opt);
     }
