@@ -409,8 +409,24 @@ fn analyze_defs(
 		    Some(x) => x
 		};
                 println!("          - pkg_name: {}", escape_str(id));
-	    }/*
-	    RefNode::ImplicitClassHandleOrClassScope(x) => {
+	    }
+            RefNode::ClassDeclaration(x) => {
+		// write the package name
+		let id = match unwrap_node!(x, ClassIdentifier) {
+		    None => { continue; },
+		    Some(x) => x
+		};
+		let id = match get_identifier(id) {
+		    None => { continue; },
+		    Some(x) => x
+		};
+                let id = match syntax_tree.get_str(&id) {
+		    None => { continue; },
+		    Some(x) => x
+		};
+                println!("          - class_def: {}", escape_str(id));
+	    }
+	    RefNode::ImplicitClassHandleOrClassScopeOrPackageScope(x) => {
 		// write the package name
 		let id = match unwrap_node!(x, ClassIdentifier) {
 		    None => { continue; },
@@ -425,7 +441,7 @@ fn analyze_defs(
 		    Some(x) => x
 		};
                 println!("          - pkg_name: {}", escape_str(id));
-	    }*/
+	    }
 	    RefNode::PsClassIdentifier(x) => {
 		// write the package name
 		let id = match unwrap_node!(x, PackageIdentifier) {
